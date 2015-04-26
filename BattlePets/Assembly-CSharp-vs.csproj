@@ -46,7 +46,10 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Data\AbilityData.cs" />
      <Compile Include="Assets\Data\PetData.cs" />
+     <Compile Include="Assets\Scripts\Ability.cs" />
+     <Compile Include="Assets\Scripts\AttackType.cs" />
      <Compile Include="Assets\Scripts\DataController.cs" />
      <Compile Include="Assets\Scripts\ElementType.cs" />
      <Compile Include="Assets\Scripts\GameController.cs" />

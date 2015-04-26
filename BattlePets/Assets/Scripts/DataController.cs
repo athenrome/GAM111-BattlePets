@@ -7,23 +7,71 @@ public class DataController : MonoBehaviour {
 
     GameController game = new GameController();
 
-    public TextAsset PetData;
-    
+    public TextAsset PetDataText;
+    public TextAsset AbilityDataText;
 
+    public List<Ability> AbilityList = new List<Ability>();
+    public List<Pet> PetList = new List<Pet>();
     
     
 
 
 	void Awake () {
         LoadPetData();
+        LoadAbilityData();
 	}
-	
+
+    void LoadAbilityData()
+    {
+
+        List<AbilityData> RawAbilityData;
+
+        System.IO.StringReader reader = new System.IO.StringReader(AbilityDataText.text);
+        CsvHelper.CsvParser parser = new CsvHelper.CsvParser(reader);
+        CsvHelper.CsvReader CsvReader = new CsvHelper.CsvReader(parser);
+        CsvReader.Configuration.AutoMap<AbilityData>();
+
+        RawAbilityData = CsvReader.GetRecords<AbilityData>().ToList();
+
+        ProcessAbilityData(RawAbilityData);
+
+    }
+
+    void ProcessAbilityData(List<AbilityData> RawAbilityData)
+    {
+
+        Ability NewAbility;
+        List<Ability> NewAbilityList = new List<Ability>();
+
+        foreach(AbilityData RawAbility in RawAbilityData)
+        {
+            string Name = RawAbility.Name;
+            ElementType ElementType = ChooseElement(RawAbility.ElementType);
+            AttackType AttackType = ChooseAttackType(RawAbility.AttackType);
+            int BaseDamage = ConvertToInt(RawAbility.BaseDamage);
+            float RechargeTime = ConvertToFloat(RawAbility.RechargeTime);
+
+            NewAbility = new Ability(Name, ElementType, AttackType, BaseDamage, RechargeTime);
+
+            NewAbilityList.Add(NewAbility);
+            
+        }
+
+        AbilityList = NewAbilityList;
+
+        print("Loaded " + AbilityList.Count + "Abilities");
+        print(AbilityList[0].Name);
+
+        
+        
+    }
+
     void LoadPetData()
     {
 
         List<PetData> RawPetData;
 
-        System.IO.StringReader reader = new System.IO.StringReader(PetData.text);
+        System.IO.StringReader reader = new System.IO.StringReader(PetDataText.text);
         CsvHelper.CsvParser parser = new CsvHelper.CsvParser(reader);
         CsvHelper.CsvReader CsvReader = new CsvHelper.CsvReader(parser);
         CsvReader.Configuration.AutoMap<PetData>();
@@ -58,12 +106,37 @@ public class DataController : MonoBehaviour {
             NewPet = new Pet(PetName, ElementType, PetHealth, PetStrength, PetSpeed, CurrentXP, CurrentLvl, FireRes, EarthRes, WaterRes, AirRes);
 
             NewPetList.Add(NewPet);
-            game.PetList.Add(NewPet);
+            
+            
         }
 
-        game.PetList = NewPetList;
+        PetList = NewPetList;
+        print("Loaded " + PetList.Count + "Pets");
 
-        print(NewPetList.Count);
+    }
+
+    AttackType ChooseAttackType(string ToConvert)
+    {
+
+        AttackType NewPetAttack = AttackType.Default;
+
+        switch (ToConvert)
+        {
+            case "Beam":
+                NewPetAttack = AttackType.Beam;
+                break;
+            case "Heal":
+                NewPetAttack = AttackType.Heal;
+                break;
+            case "Projectile":
+                NewPetAttack = AttackType.Projectile;
+                break;
+            case "Melee":
+                NewPetAttack = AttackType.Melee;
+                break;
+        }
+
+        return NewPetAttack;
 
     }
 
